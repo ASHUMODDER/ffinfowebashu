@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -7,56 +8,25 @@
   <style>
     body {
       font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      background: radial-gradient(circle at top left, #232323 70%, #121212 100%);
+      background: #121212;
       color: #e0e0e0;
       margin: 0;
       padding: 0;
-      position: relative;
-      overflow: hidden;
-      min-height: 100vh;
-    }
-
-    /* Massive BG Text */
-    .bg-text {
-      position: fixed;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%) rotate(-18deg);
-      font-size: 8vw;
-      font-weight: 900;
-      letter-spacing: 16px;
-      opacity: 0.10;
-      user-select: none;
-      pointer-events: none;
-      z-index: 1;
-      background: linear-gradient(90deg, #ff8c00, #ffd700, #ff4500, #0ff, #fd0 80%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      text-fill-color: transparent;
-      filter: blur(1px) drop-shadow(2px 2px 6px #ff0b);
-      text-align: center;
-      width: 90vw;
-      white-space: nowrap;
     }
 
     .container {
-      position: relative;
       max-width: 900px;
       margin: 2rem auto;
-      background: rgba(31, 31, 31, 0.98);
+      background: #1f1f1f;
       padding: 2rem;
       border-radius: 15px;
-      box-shadow: 0 0 18px #2c2c2c;
-      z-index: 2;
+      box-shadow: 0 0 15px #3a3a3a;
     }
 
     h1 {
       text-align: center;
       color: #ffd700;
       margin-bottom: 1rem;
-      letter-spacing: 2px;
-      text-shadow: 0 0 8px #ff8c00a1, 0 2px 1px #333;
     }
 
     form {
@@ -73,10 +43,6 @@
       border-radius: 8px;
       border: none;
       font-size: 1rem;
-      background: #222;
-      color: #ffd700;
-      box-shadow: 0 0 4px #ffd70055;
-      outline: none;
     }
 
     button {
@@ -85,14 +51,12 @@
       border: none;
       border-radius: 8px;
       font-weight: bold;
-      color: #1f1f1f;
       cursor: pointer;
       transition: background 0.3s ease;
-      box-shadow: 0 0 6px #ff8c002a;
     }
+
     button:hover {
-      background: #ff8c00;
-      color: #fff;
+      background: #ffbf00;
     }
 
     /* Region buttons */
@@ -102,6 +66,7 @@
       gap: 1rem;
       margin-bottom: 1rem;
     }
+
     .region-button {
       background: #333;
       color: #ffd700;
@@ -110,28 +75,28 @@
       font-weight: bold;
       cursor: pointer;
       padding: 0.6rem 1.2rem;
-      transition: background 0.3s, color 0.3s;
-      font-size: 1rem;
-      box-shadow: 0 0 4px #ffd70066;
+      transition: background 0.3s ease, color 0.3s ease;
     }
+
     .region-button.selected,
     .region-button:hover {
       background: #ffd700;
-      color: #232323;
+      color: #121212;
     }
+
     .account-info {
       font-size: 0.95rem;
       line-height: 1.6;
       white-space: pre-wrap;
-      background: #292929e6;
+      background: #292929;
       padding: 1rem;
       border-radius: 8px;
-      box-shadow: 0 2px 8px #29292988;
-      margin-top: 1rem;
     }
+
     b {
       color: #ffd700;
     }
+
     .section-title {
       color: #ff8c00;
       margin-top: 1.5rem;
@@ -140,13 +105,14 @@
       border-bottom: 2px solid #ff8c00;
       padding-bottom: 0.2rem;
     }
+
     .highlight {
       color: #ff4500;
     }
   </style>
 </head>
+
 <body>
-  <div class="bg-text">ASHU MODDER</div>
   <div class="container">
     <h1>Free Fire Account Info Lookup</h1>
     <form id="uidForm">
@@ -161,6 +127,7 @@
     </div>
     <div id="result" class="account-info"></div>
   </div>
+
   <script>
     // Escape HTML for safety
     function escapeHtml(text) {
@@ -182,6 +149,7 @@
     // Region buttons logic
     const regionButtons = document.querySelectorAll('.region-button');
     let selectedRegion = 'ind'; // Default for IND
+
     regionButtons.forEach(btn => {
       btn.addEventListener('click', () => {
         regionButtons.forEach(b => b.classList.remove('selected'));
@@ -191,6 +159,7 @@
     });
 
     const resultDiv = document.getElementById('result');
+
     async function fetchPlayerInfo(uid, region) {
       // API endpoint as per user's example format
       const url = `https://ffwlxd-info.vercel.app/player-info?region=${region}&uid=${uid}`;
@@ -291,4 +260,5 @@
     });
   </script>
 </body>
+
 </html>
