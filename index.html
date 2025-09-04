@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Free Fire Account Info Lookup</title>
+  <style>
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: #121212;
+      color: #e0e0e0;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 2rem auto;
+      background: #1f1f1f;
+      padding: 2rem;
+      border-radius: 15px;
+      box-shadow: 0 0 15px #3a3a3a;
+    }
+
+    h1 {
+      text-align: center;
+      color: #ffd700;
+      margin-bottom: 1rem;
+    }
+
+    form {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    input[type="text"] {
+      width: 300px;
+      padding: 0.8rem;
+      border-radius: 8px;
+      border: none;
+      font-size: 1rem;
+    }
+
+    button {
+      padding: 0.8rem 1.5rem;
+      background: #ffd700;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: #ffbf00;
+    }
+
+    /* Region buttons */
+    .region-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .region-button {
+      background: #333;
+      color: #ffd700;
+      border: 2px solid #ffd700;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      padding: 0.6rem 1.2rem;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    .region-button.selected,
+    .region-button:hover {
+      background: #ffd700;
+      color: #121212;
+    }
+
+    .account-info {
+      font-size: 0.95rem;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      background: #292929;
+      padding: 1rem;
+      border-radius: 8px;
+    }
+
+    b {
+      color: #ffd700;
+    }
+
+    .section-title {
+      color: #ff8c00;
+      margin-top: 1.5rem;
+      margin-bottom: 0.5rem;
+      font-size: 1.1rem;
+      border-bottom: 2px solid #ff8c00;
+      padding-bottom: 0.2rem;
+    }
+
+    .highlight {
+      color: #ff4500;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Free Fire Account Info Lookup</h1>
+    <form id="uidForm">
+      <input type="text" id="uidInput" placeholder="Enter User UID" required pattern="[0-9]+"
+        title="Please enter a valid numeric UID" />
+      <button type="submit">Get Info</button>
+    </form>
+    <div class="region-buttons">
+      <button type="button" class="region-button selected" data-region="ind">IND</button>
+      <button type="button" class="region-button" data-region="br">BR</button>
+      <button type="button" class="region-button" data-region="us">US</button>
+    </div>
+    <div id="result" class="account-info"></div>
+  </div>
+
+  <script>
+    // Escape HTML for safety
+    function escapeHtml(text) {
+      if (text === undefined || text === null) return '';
+      return String(text).replace(/[&<>"'`=\/]/g, function (s) {
+        return ({
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#39;',
+          '`': '&#x60;',
+          '=': '&#x3D;',
+          '/': '&#x2F;'
+        })[s];
+      });
+    }
+
+    // Region buttons logic
+    const regionButtons = document.querySelectorAll('.region-button');
+    let selectedRegion = 'ind'; // Default for IND
+
+    regionButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        regionButtons.forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        selectedRegion = btn.getAttribute('data-region');
+      });
+    });
+
+    const resultDiv = document.getElementById('result');
+
+    async function fetchPlayerInfo(uid, region) {
+      // API endpoint as per user's example format
+      const url = `https://ffwlxd-info.vercel.app/player-info?region=${region}&uid=${uid}`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
+      return await res.json();
+    }
+
+    function formatTimestamp(dateStr) {
+      if (!dateStr) return 'N/A';
+      try {
+        const dt = new Date(dateStr);
+        if (isNaN(dt)) return dateStr;
+        return dt.toLocaleDateString() + ' ' + dt.toLocaleTimeString();
+      } catch {
+        return dateStr;
+      }
+    }
+
+    document.getElementById('uidForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const uid = document.getElementById('uidInput').value.trim();
+      if (!uid) return;
+
+      resultDiv.textContent = "Loading...";
+
+      try {
+        const data = await fetchPlayerInfo(uid, selectedRegion);
+
+        if (!data || !data.AccountInfo) {
+          resultDiv.textContent = "No account info found.";
+          return;
+        }
+
+        const account = data.AccountInfo || {};
+        const social = data.socialinfo || {};
+        const guild = data.GuildInfo || {};
+        const pet = data.petInfo || {};
+        const credit = data.creditScoreInfo || {};
+        const captain = data.captainBasicInfo || {};
+        const profile = data.AccountProfileInfo || {};
+
+        const info = `<b>ACCOUNT INFO:</b>
+┌🧑‍💻 <b>ACCOUNT BASIC INFO</b>
+├─ <b>Name:</b> ${escapeHtml(account.AccountName || "Unknown")}
+├─ <b>UID:</b> ${escapeHtml(uid)}
+├─ <b>Level:</b> ${escapeHtml(account.AccountLevel) || 'N/A'} (Exp: ${escapeHtml(account.AccountEXP) || 'N/A'})
+├─ <b>Region:</b> ${escapeHtml(data.region || selectedRegion.toUpperCase())}
+├─ <b>Likes:</b> ${escapeHtml(account.AccountLikes) || 'N/A'}
+├─ <b>Honor Score:</b> ${escapeHtml(credit.creditScore) || 'N/A'}
+├─ <b>Title:</b> ${escapeHtml(data.title_name || 'N/A')}
+└─ <b>Signature:</b> ${escapeHtml(social.AccountSignature || 'No Signature')}
+
+┌🎮 <b>ACCOUNT ACTIVITY</b>
+├─ <b>Most Recent OB:</b> ${escapeHtml(account.ReleaseVersion) || 'N/A'}
+├─ <b>Booyah Pass:</b> ${escapeHtml(account.hasElitePass) || 'Free Version'}
+├─ <b>Current BP Badges:</b> ${escapeHtml(account.AccountBPBadges) || 'N/A'}
+├─ <b>BR Rank:</b> ${escapeHtml(account.BrRankPoint) || 'N/A'}
+├─ <b>CS Points:</b> ${escapeHtml(account.CsRankPoint) || 'N/A'}
+├─ <b>Created At:</b> ${escapeHtml(new Date(account.AccountCreateTime * 1000).toDateString() || 'N/A')}
+└─ <b>Last Login:</b> ${escapeHtml(new Date(account.AccountLastLogin * 1000).toDateString() || 'N/A')}
+
+┌👕 <b>ACCOUNT OVERVIEW</b>
+├─ <b>Avatar ID:</b> ${escapeHtml(account.AccountAvatarId) || 'Default'}
+├─ <b>Banner ID:</b> ${escapeHtml(account.AccountBannerId) || 'Default'}
+├─ <b>Equipped Skills:</b> ${Array.isArray(profile.EquippedSkills) ? profile.EquippedSkills.map(escapeHtml).join(", ") : "N/A"}
+├─ <b>Equipped Gun ID:</b> ${escapeHtml(account.EquippedWeapon) || 'N/A'}
+└─ <b>Outfits:</b> <b>Graphically Presented Below! 😉</b>
+
+┌🐾 <b>PET DETAILS</b>
+├─ <b>Equipped?:</b> ${escapeHtml(pet.isSelected) || 'No'}
+├─ <b>Pet Name:</b> ${escapeHtml(pet.name) || 'N/A'}
+├─ <b>Pet Type:</b> ${escapeHtml(data.pet_type_name) || 'N/A'}
+├─ <b>Pet Exp:</b> ${escapeHtml(pet.exp) || 'N/A'}
+└─ <b>Pet Level:</b> ${escapeHtml(pet.level) || 'N/A'}
+
+┌🛡️ <b>GUILD INFO</b>
+├─ <b>Guild Name:</b> ${escapeHtml(guild.GuildName) || 'N/A'}
+├─ <b>Guild ID:</b> ${escapeHtml(guild.GuildID) || 'N/A'}
+├─ <b>Guild Level:</b> ${escapeHtml(guild.GuildLevel) || 'N/A'}
+├─ <b>Guild Members:</b> ${escapeHtml(guild.GuildMember) || 'N/A'}
+└─ <b>Leader Info:</b>
+    ├─ <b>Leader Name:</b> ${escapeHtml(captain.nickname) || 'N/A'}
+    ├─ <b>Leader UID:</b> ${escapeHtml(captain.accountId) || 'N/A'}
+    ├─ <b>Leader Level:</b> ${escapeHtml(captain.level) || 'N/A'}
+    ├─ <b>Leader Created At:</b> ${escapeHtml(new Date(captain.createAt * 1000).toDateString() || 'N/A')}
+    ├─ <b>Leader Last Login:</b> ${escapeHtml(new Date(captain.lastLoginAt * 1000).toDateString() || 'N/A')}
+    ├─ <b>Leader Title:</b> ${escapeHtml(data.leader_title_name) || 'N/A'}
+    └─ <b>Leader BR Points:</b> ${escapeHtml(captain.rankingPoints) || 'N/A'}
+
+<b>OWNER:</b> ☠ @ashu_modder ✔`;
+
+        resultDiv.innerHTML = info;
+      } catch (error) {
+        resultDiv.textContent = "Error fetching data. Please try again.";
+        console.error(error);
+      }
+    });
+  </script>
+</body>
+
+</html>
